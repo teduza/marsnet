@@ -1,6 +1,7 @@
 import express from "express";
 import { createServer } from "node:http";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../routers";
@@ -34,10 +35,28 @@ if (ENV.nodeEnv === "production") {
   // In production, the server is bundled into dist/index.js
   // Static files are in dist/public
   const publicPath = path.resolve(__dirname, "public");
+  const indexPath = path.join(publicPath, "index.html");
+  
+  console.log(`[Static] __dirname: ${__dirname}`);
+  console.log(`[Static] publicPath: ${publicPath}`);
+  console.log(`[Static] index.html exists: ${fs.existsSync(indexPath)}`);
+
+  // Use static middleware first
   app.use(express.static(publicPath));
   
+  // Catch-all for SPA routing
   app.get("*", (req, res) => {
-    res.sendFile(path.join(publicPath, "index.html"));
+    console.log(`[Static] Catch-all route for: ${req.url}`);
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.error(`[Static] Error: index.html not found at ${indexPath}`);
+      res.status(404).send("Frontend build not found. Please check deployment logs.");
+    }
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("MARSNet Server is running in development mode. Use 'pnpm dev' for frontend.");
   });
 }
 
