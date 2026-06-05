@@ -31,7 +31,9 @@ setupSocketIO(httpServer);
 
 // Serve static files in production
 if (ENV.nodeEnv === "production") {
-  const publicPath = path.resolve(__dirname, "../../dist/public");
+  // In production, the server is bundled into dist/index.js
+  // Static files are in dist/public
+  const publicPath = path.resolve(__dirname, "public");
   app.use(express.static(publicPath));
   
   app.get("*", (req, res) => {
