@@ -3,7 +3,10 @@ import { ENV } from "./env";
 import * as cookie from "cookie";
 import { COOKIE_NAME } from "@shared/const";
 
-const supabase = createClient(ENV.supabaseUrl, ENV.supabaseServiceRoleKey);
+let supabase: any = null;
+if (ENV.supabaseUrl && ENV.supabaseServiceRoleKey) {
+  supabase = createClient(ENV.supabaseUrl, ENV.supabaseServiceRoleKey);
+}
 
 export const sdk = {
   async authenticateRequest(req: { headers: { cookie?: string } }) {
@@ -11,7 +14,7 @@ export const sdk = {
       const cookies = cookie.parse(req.headers.cookie || "");
       const token = cookies[COOKIE_NAME];
 
-      if (!token) return null;
+      if (!token || !supabase) return null;
 
       const { data: { user }, error } = await supabase.auth.getUser(token);
       
