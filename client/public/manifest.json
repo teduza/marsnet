@@ -1,0 +1,27 @@
+{
+  "name": "MARSNet Corporate Messenger",
+  "short_name": "MARSNet",
+  "description": "Secure internal corporate messaging for approved employees",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "/manus-storage/icon-192_6074290c.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/manus-storage/icon-512_01b4953f.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

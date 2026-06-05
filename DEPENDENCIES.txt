@@ -1,0 +1,16 @@
+Additional Dependencies to Install:
+
+npm install @supabase/supabase-js bcrypt nodemailer
+
+or
+
+pnpm add @supabase/supabase-js bcrypt nodemailer
+
+These are needed for:
+- @supabase/supabase-js: Database and Auth client
+- bcrypt: Password hashing
+- nodemailer: Email notifications for contact form
+
+After installing, run:
+pnpm install
+pnpm build

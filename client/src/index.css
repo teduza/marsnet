@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+
+/* ─── MARSNet Dark Corporate Theme ──────────────────────────────────────────── */
+@theme inline {
+  --color-background:       oklch(0.11 0.01 260);
+  --color-foreground:       oklch(0.93 0.01 250);
+  --color-card:             oklch(0.14 0.012 260);
+  --color-card-foreground:  oklch(0.93 0.01 250);
+  --color-popover:          oklch(0.14 0.012 260);
+  --color-popover-foreground: oklch(0.93 0.01 250);
+
+  --color-primary:          oklch(0.58 0.18 250);
+  --color-primary-foreground: oklch(0.98 0.005 250);
+  --color-secondary:        oklch(0.19 0.015 260);
+  --color-secondary-foreground: oklch(0.80 0.01 250);
+
+  --color-muted:            oklch(0.19 0.015 260);
+  --color-muted-foreground: oklch(0.55 0.02 260);
+  --color-accent:           oklch(0.22 0.02 260);
+  --color-accent-foreground: oklch(0.93 0.01 250);
+
+  --color-destructive:      oklch(0.55 0.22 25);
+  --color-destructive-foreground: oklch(0.98 0.005 25);
+  --color-border:           oklch(0.22 0.015 260);
+  --color-input:            oklch(0.19 0.015 260);
+  --color-ring:             oklch(0.58 0.18 250);
+
+  /* Sidebar */
+  --color-sidebar:          oklch(0.095 0.012 260);
+  --color-sidebar-foreground: oklch(0.93 0.01 250);
+  --color-sidebar-primary:  oklch(0.58 0.18 250);
+  --color-sidebar-primary-foreground: oklch(0.98 0.005 250);
+  --color-sidebar-accent:   oklch(0.16 0.015 260);
+  --color-sidebar-accent-foreground: oklch(0.93 0.01 250);
+  --color-sidebar-border:   oklch(0.18 0.015 260);
+  --color-sidebar-ring:     oklch(0.58 0.18 250);
+
+  /* Chart colors */
+  --color-chart-1: oklch(0.58 0.18 250);
+  --color-chart-2: oklch(0.65 0.15 200);
+  --color-chart-3: oklch(0.70 0.12 160);
+  --color-chart-4: oklch(0.60 0.20 300);
+  --color-chart-5: oklch(0.55 0.22 25);
+
+  --radius: 0.5rem;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Custom easings */
+  --ease-out-snappy: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-smooth: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+/* ─── Utilities ──────────────────────────────────────────────────────────────── */
+@layer utilities {
+  .container {
+    @apply mx-auto px-4 w-full;
+    max-width: 1280px;
+  }
+
+  /* Flex min-size fix */
+  .flex {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  /* Button active press */
+  .btn-press {
+    @apply transition-transform duration-150;
+    transition-timing-function: var(--ease-out-snappy);
+  }
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+
+  /* Online/offline status dot */
+  .status-dot {
+    @apply w-2.5 h-2.5 rounded-full border-2 border-background;
+  }
+  .status-dot-online {
+    @apply bg-emerald-500;
+  }
+  .status-dot-offline {
+    @apply bg-muted-foreground/40;
+  }
+
+  /* Message bubble */
+  .msg-bubble-self {
+    @apply bg-primary text-primary-foreground rounded-2xl rounded-br-sm;
+  }
+  .msg-bubble-other {
+    @apply bg-secondary text-secondary-foreground rounded-2xl rounded-bl-sm;
+  }
+
+  /* Glass effect for overlays */
+  .glass {
+    backdrop-filter: blur(12px);
+    background: oklch(0.14 0.012 260 / 0.85);
+  }
+}
