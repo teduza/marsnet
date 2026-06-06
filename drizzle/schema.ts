@@ -1,23 +1,27 @@
 import {
-  bigint,
   boolean,
-  int,
-  mysqlEnum,
-  mysqlTable,
+  integer,
+  pgEnum,
+  pgTable,
+  serial,
   text,
   timestamp,
   varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+export const roleEnum = pgEnum("role", ["user", "admin"]);
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: roleEnum("role").default("user").notNull(),
 
   // MARSNet extensions
   displayName: varchar("displayName", { length: 128 }),
@@ -29,7 +33,7 @@ export const users = mysqlTable("users", {
   lastSeenAt: timestamp("lastSeenAt"),
 
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
@@ -38,12 +42,12 @@ export type InsertUser = typeof users.$inferInsert;
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 
-export const messages = mysqlTable("messages", {
-  id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
-  senderId: int("senderId")
+export const messages = pgTable("messages", {
+  id: serial("id").primaryKey(),
+  senderId: integer("senderId")
     .notNull()
     .references(() => users.id),
-  receiverId: int("receiverId")
+  receiverId: integer("receiverId")
     .notNull()
     .references(() => users.id),
   content: text("content").notNull(),

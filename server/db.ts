@@ -1,14 +1,16 @@
 import { and, desc, eq, gt, lt, or } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { InsertMessage, InsertUser, messages, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+let _db: any = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL);
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -24,46 +26,29 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   const db = await getDb();
   if (!db) { console.warn("[Database] Cannot upsert user: database not available"); return; }
 
-  const values: InsertUser = { openId: user.openId };
-  const updateSet: Record<string, unknown> = {};
+  const values: InsertUser = { 
+    openId: user.openId,
+    name: user.name ?? null,
+    email: user.email ?? null,
+    loginMethod: user.loginMethod ?? null,
+    displayName: user.displayName ?? null,
+    department: user.department ?? null,
+    position: user.position ?? null,
+    avatarUrl: user.avatarUrl ?? null,
+    lastSignedIn: user.lastSignedIn ?? new Date(),
+    role: user.role ?? "user",
+    isActive: user.isActive ?? true
+  };
 
-  const textFields = ["name", "email", "loginMethod", "displayName", "department", "position", "avatarUrl"] as const;
-  for (const field of textFields) {
-    const value = user[field as keyof InsertUser];
-    if (value === undefined) continue;
-    const normalized = (value ?? null) as string | null;
-    (values as Record<string, unknown>)[field] = normalized;
-    updateSet[field] = normalized;
-  }
-
-  if (user.lastSignedIn !== undefined) {
-    values.lastSignedIn = user.lastSignedIn;
-    updateSet.lastSignedIn = user.lastSignedIn;
-  }
-  if (user.role !== undefined) {
-    values.role = user.role;
-    updateSet.role = user.role;
-  } else if (user.openId === ENV.ownerOpenId) {
-    values.role = "admin";
-    updateSet.role = "admin";
-  }
-
-  if (!values.lastSignedIn) values.lastSignedIn = new Date();
-  if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-
-  // Handle isActive explicitly if provided
-  if (user.isActive !== undefined) {
-    values.isActive = user.isActive;
-    updateSet.isActive = user.isActive;
-  }
-
-  // Owner is always active
   if (user.openId === ENV.ownerOpenId) {
+    values.role = "admin";
     values.isActive = true;
-    updateSet.isActive = true;
   }
 
-  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  await db.insert(users).values(values).onConflictDoUpdate({
+    target: users.openId,
+    set: values
+  });
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -156,8 +141,8 @@ export async function setUserOnline(userId: number, online: boolean) {
 export async function createMessage(msg: InsertMessage) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const [result] = await db.insert(messages).values(msg).$returningId();
-  return result;
+  const result = await db.insert(messages).values(msg).returning();
+  return result[0];
 }
 
 export async function getConversation(
@@ -198,7 +183,7 @@ export async function markMessagesRead(senderId: number, receiverId: number) {
       and(
         eq(messages.senderId, senderId),
         eq(messages.receiverId, receiverId),
-        eq(messages.readAt, null as unknown as Date)
+        eq(messages.readAt, null as any)
       )
     );
 }
@@ -213,7 +198,7 @@ export async function getUnreadCount(receiverId: number, senderId: number) {
       and(
         eq(messages.senderId, senderId),
         eq(messages.receiverId, receiverId),
-        eq(messages.readAt, null as unknown as Date)
+        eq(messages.readAt, null as any)
       )
     );
   return result.length;
@@ -222,7 +207,6 @@ export async function getUnreadCount(receiverId: number, senderId: number) {
 export async function getLastMessages(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  // Get the latest message for each conversation partner
   return db
     .select()
     .from(messages)

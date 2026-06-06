@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, ExternalLink } from "lucide-react";
 
 export default function LoginPage() {
   const { isAuthenticated, loading, refresh } = useAuth();
@@ -29,7 +29,7 @@ export default function LoginPage() {
   const loginUrl = getLoginUrl();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-between px-4 py-8 relative">
       {/* Background grid */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"
@@ -40,7 +40,9 @@ export default function LoginPage() {
         }}
       />
 
-      <div className="relative w-full max-w-sm">
+      <div /> {/* Spacer */}
+
+      <div className="relative w-full max-w-sm z-10">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
@@ -82,11 +84,31 @@ export default function LoginPage() {
             No public registration. Contact your administrator to request access.
           </p>
         </div>
-
-        <p className="text-center text-xs text-muted-foreground/50 mt-6">
-          © {new Date().getFullYear()} MARSNet — Internal Use Only
-        </p>
       </div>
+
+      {/* Footer in teduza.com style */}
+      <footer className="w-full max-w-4xl mt-12 z-10">
+        <div className="border-t border-border/50 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-muted-foreground/60">
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <span className="font-semibold text-foreground/80">TEDUZA</span>
+              <span className="opacity-30">|</span>
+              <span>MARSNet Secure Communication</span>
+            </div>
+            <p>Protected by end-to-end encryption and private infrastructure.</p>
+          </div>
+          
+          <div className="flex items-center gap-6">
+            <a href="https://teduza.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors flex items-center gap-1">
+              teduza.com <ExternalLink className="w-3 h-3" />
+            </a>
+            <div className="flex flex-col items-end">
+              <span>© {new Date().getFullYear()} TEDUZA Group</span>
+              <span>All rights reserved.</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
