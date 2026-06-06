@@ -7,18 +7,28 @@ type Props = { children: React.ReactNode };
 
 export default function ProtectedRoute({ children }: Props) {
   const { user, loading, isAuthenticated } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     if (loading) return;
+    
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      const loginUrl = getLoginUrl();
+      if (loginUrl === "#") {
+        // If OAuth is not configured, fallback to local login page
+        if (location !== "/login") {
+          setLocation("/login");
+        }
+      } else {
+        window.location.href = loginUrl;
+      }
       return;
     }
+    
     if (user && !user.isActive) {
       setLocation("/access-denied");
     }
-  }, [loading, isAuthenticated, user, setLocation]);
+  }, [loading, isAuthenticated, user, setLocation, location]);
 
   if (loading) {
     return (
@@ -31,7 +41,12 @@ export default function ProtectedRoute({ children }: Props) {
     );
   }
 
-  if (!isAuthenticated || (user && !user.isActive)) {
+  if (!isAuthenticated) {
+    // Return null while redirecting, or could return a simple message
+    return null;
+  }
+
+  if (user && !user.isActive) {
     return null;
   }
 
